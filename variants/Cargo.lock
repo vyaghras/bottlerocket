@@ -19,6 +19,7 @@ dependencies = [
  "docker-init",
  "docker-proxy",
  "iputils",
+ "journald-cloudwatch-logs",
  "kernel-5_15",
  "login",
  "release",
@@ -431,6 +432,14 @@ version = "0.1.0"
 dependencies = [
  "glibc",
  "libcap",
+]
+
+[[package]]
+name = "journald-cloudwatch-logs"
+version = "0.1.0"
+dependencies = [
+ "glibc",
+ "systemd",
 ]
 
 [[package]]
