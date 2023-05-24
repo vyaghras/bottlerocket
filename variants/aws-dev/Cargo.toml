@@ -37,6 +37,7 @@ included-packages = [
     "tcpdump",
     "chrony-tools",
     "journald-cloudwatch-logs",
+    "cloudwatch-agent",
 ]
 
 [lib]
@@ -58,3 +59,4 @@ strace = { path = "../../packages/strace" }
 tcpdump = { path = "../../packages/tcpdump" }
 chrony = { path = "../../packages/chrony" }
 journald-cloudwatch-logs = { path = "../../packages/journald-cloudwatch-logs"}
+cloudwatch-agent = { path = "../../packages/cloudwatch-agent"}
