@@ -498,6 +498,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "aws-admin-container-v0-10-1"
+version = "0.1.0"
+dependencies = [
+ "migration-helpers",
+]
+
+[[package]]
 name = "aws-admin-container-v0-9-4"
 version = "0.1.0"
 dependencies = [
@@ -542,6 +549,13 @@ dependencies = [
 
 [[package]]
 name = "aws-control-container-v0-7-1"
+version = "0.1.0"
+dependencies = [
+ "migration-helpers",
+]
+
+[[package]]
+name = "aws-control-container-v0-7-2"
 version = "0.1.0"
 dependencies = [
  "migration-helpers",
@@ -1813,9 +1827,9 @@ dependencies = [
 
 [[package]]
 name = "h2"
-version = "0.3.16"
+version = "0.3.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5be7b54589b581f624f566bf5d8eb2bab1db736c51528720b6bd36b96b55924d"
+checksum = "17f8a914c2987b688368b5138aa05321db91f4090cf26118185672ad588bce21"
 dependencies = [
  "bytes",
  "fnv",
@@ -2234,7 +2248,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "k8s-services-mode"
+version = "0.1.0"
+dependencies = [
+ "migration-helpers",
+ "serde_json",
+]
+
+[[package]]
 name = "kubelet-config-settings"
+version = "0.1.0"
+dependencies = [
+ "migration-helpers",
+]
+
+[[package]]
+name = "kubelet-prefix-config-settings"
 version = "0.1.0"
 dependencies = [
  "migration-helpers",
@@ -2989,6 +3018,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "public-admin-container-v0-10-1"
+version = "0.1.0"
+dependencies = [
+ "migration-helpers",
+]
+
+[[package]]
 name = "public-admin-container-v0-9-4"
 version = "0.1.0"
 dependencies = [
@@ -3004,6 +3040,13 @@ dependencies = [
 
 [[package]]
 name = "public-control-container-v0-7-1"
+version = "0.1.0"
+dependencies = [
+ "migration-helpers",
+]
+
+[[package]]
+name = "public-control-container-v0-7-2"
 version = "0.1.0"
 dependencies = [
  "migration-helpers",

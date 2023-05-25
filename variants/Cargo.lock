@@ -10,6 +10,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "amazon-ssm-agent"
+version = "0.1.0"
+dependencies = [
+ "glibc",
+]
+
+[[package]]
 name = "aws-dev"
 version = "0.1.0"
 dependencies = [
@@ -62,33 +69,6 @@ name = "aws-iam-authenticator"
 version = "0.1.0"
 dependencies = [
  "glibc",
-]
-
-[[package]]
-name = "aws-k8s-1_22"
-version = "0.1.0"
-dependencies = [
- "aws-iam-authenticator",
- "cni",
- "cni-plugins",
- "kernel-5_10",
- "kubernetes-1_22",
- "release",
-]
-
-[[package]]
-name = "aws-k8s-1_22-nvidia"
-version = "0.1.0"
-dependencies = [
- "aws-iam-authenticator",
- "cni",
- "cni-plugins",
- "kernel-5_10",
- "kmod-5_10-nvidia",
- "kubernetes-1_22",
- "nvidia-container-toolkit",
- "nvidia-k8s-device-plugin",
- "release",
 ]
 
 [[package]]
@@ -194,6 +174,33 @@ dependencies = [
  "kernel-5_15",
  "kmod-5_15-nvidia",
  "kubernetes-1_26",
+ "nvidia-container-toolkit",
+ "nvidia-k8s-device-plugin",
+ "release",
+]
+
+[[package]]
+name = "aws-k8s-1_27"
+version = "0.1.0"
+dependencies = [
+ "aws-iam-authenticator",
+ "cni",
+ "cni-plugins",
+ "kernel-5_15",
+ "kubernetes-1_27",
+ "release",
+]
+
+[[package]]
+name = "aws-k8s-1_27-nvidia"
+version = "0.1.0"
+dependencies = [
+ "aws-iam-authenticator",
+ "cni",
+ "cni-plugins",
+ "kernel-5_15",
+ "kmod-5_15-nvidia",
+ "kubernetes-1_27",
  "nvidia-container-toolkit",
  "nvidia-k8s-device-plugin",
  "release",
@@ -349,9 +356,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "ecr-credential-provider-1_27"
+version = "0.1.0"
+dependencies = [
+ "glibc",
+]
+
+[[package]]
 name = "ecs-agent"
 version = "0.1.0"
 dependencies = [
+ "amazon-ssm-agent",
  "glibc",
 ]
 
@@ -504,15 +519,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "kubernetes-1_22"
-version = "0.1.0"
-dependencies = [
- "aws-signing-helper",
- "ecr-credential-provider",
- "glibc",
-]
-
-[[package]]
 name = "kubernetes-1_23"
 version = "0.1.0"
 dependencies = [
@@ -545,6 +551,15 @@ version = "0.1.0"
 dependencies = [
  "aws-signing-helper",
  "ecr-credential-provider",
+ "glibc",
+]
+
+[[package]]
+name = "kubernetes-1_27"
+version = "0.1.0"
+dependencies = [
+ "aws-signing-helper",
+ "ecr-credential-provider-1_27",
  "glibc",
 ]
 
@@ -848,17 +863,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "metal-k8s-1_22"
-version = "0.1.0"
-dependencies = [
- "cni",
- "cni-plugins",
- "kernel-5_10",
- "kubernetes-1_22",
- "release",
-]
-
-[[package]]
 name = "metal-k8s-1_23"
 version = "0.1.0"
 dependencies = [
@@ -899,6 +903,17 @@ dependencies = [
  "cni-plugins",
  "kernel-5_15",
  "kubernetes-1_26",
+ "release",
+]
+
+[[package]]
+name = "metal-k8s-1_27"
+version = "0.1.0"
+dependencies = [
+ "cni",
+ "cni-plugins",
+ "kernel-5_15",
+ "kubernetes-1_27",
  "release",
 ]
 
@@ -1091,18 +1106,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "vmware-k8s-1_22"
-version = "0.1.0"
-dependencies = [
- "cni",
- "cni-plugins",
- "kernel-5_10",
- "kubernetes-1_22",
- "open-vm-tools",
- "release",
-]
-
-[[package]]
 name = "vmware-k8s-1_23"
 version = "0.1.0"
 dependencies = [
@@ -1146,6 +1149,18 @@ dependencies = [
  "cni-plugins",
  "kernel-5_15",
  "kubernetes-1_26",
+ "open-vm-tools",
+ "release",
+]
+
+[[package]]
+name = "vmware-k8s-1_27"
+version = "0.1.0"
+dependencies = [
+ "cni",
+ "cni-plugins",
+ "kernel-5_15",
+ "kubernetes-1_27",
  "open-vm-tools",
  "release",
 ]

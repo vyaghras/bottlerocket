@@ -19,7 +19,7 @@ use snafu::{OptionExt, ResultExt};
 use std::fs::read_to_string;
 use std::path::PathBuf;
 use std::str::FromStr;
-use testsys_config::{GenericVariantConfig, TestConfig};
+use testsys_config::{GenericVariantConfig, ResourceAgentType, TestConfig};
 use testsys_model::test_manager::TestManager;
 use testsys_model::SecretName;
 
@@ -131,6 +131,11 @@ struct CliConfig {
     #[clap(long, env = "TESTSYS_TARGET_CLUSTER_NAME")]
     target_cluster_name: Option<String>,
 
+    /// The sonobuoy image that should be used for conformance testing. It may be omitted to use the default
+    /// sonobuoy image.
+    #[clap(long, env = "TESTSYS_SONOBUOY_IMAGE")]
+    sonobuoy_image: Option<String>,
+
     /// The image that should be used for conformance testing. It may be omitted to use the default
     /// testing image.
     #[clap(long, env = "TESTSYS_CONFORMANCE_IMAGE")]
@@ -157,6 +162,10 @@ struct CliConfig {
     #[clap(long, env = "TESTSYS_USERDATA")]
     pub userdata: Option<String>,
 
+    /// Specify the method that should be used to launch instances
+    #[clap(long, env = "TESTSYS_RESOURCE_AGENT")]
+    pub resource_agent_type: Option<ResourceAgentType>,
+
     /// A set of workloads that should be run for a workload test (--workload my-workload=<WORKLOAD-IMAGE>)
     #[clap(long = "workload", parse(try_from_str = parse_workloads), number_of_values = 1)]
     pub workloads: Vec<(String, String)>,
@@ -177,8 +186,11 @@ impl From<CliConfig> for GenericVariantConfig {
         GenericVariantConfig {
             cluster_names: val.target_cluster_name.into_iter().collect(),
             instance_type: val.instance_type,
+            resource_agent_type: val.resource_agent_type,
+            block_device_mapping: Default::default(),
             secrets: val.secret.into_iter().collect(),
             agent_role: val.assume_role,
+            sonobuoy_image: val.sonobuoy_image,
             conformance_image: val.conformance_image,
             conformance_registry: val.conformance_registry,
             control_plane_endpoint: val.control_plane_endpoint,
@@ -527,6 +539,13 @@ pub(crate) struct TestsysImages {
     )]
     pub(crate) ec2_resource: Option<String>,
 
+    /// EC2 Karpenter resource agent URI. If not provided the latest released resource agent will be used.
+    #[clap(
+        long = "ec2-resource-agent-image",
+        env = "TESTSYS_EC2_KARPENTER_RESOURCE_AGENT_IMAGE"
+    )]
+    pub(crate) ec2_karpenter_resource: Option<String>,
+
     /// vSphere VM resource agent URI. If not provided the latest released resource agent will be used.
     #[clap(
         long = "vsphere-vm-resource-agent-image",
@@ -559,6 +578,13 @@ pub(crate) struct TestsysImages {
     )]
     pub(crate) k8s_workload: Option<String>,
 
+    /// ECS workload agent URI. If not provided the latest released test agent will be used.
+    #[clap(
+        long = "ecs-workload-agent-image",
+        env = "TESTSYS_ECS_WORKLOAD_AGENT_IMAGE"
+    )]
+    pub(crate) ecs_workload: Option<String>,
+
     /// TestSys controller URI. If not provided the latest released controller will be used.
     #[clap(long = "controller-image", env = "TESTSYS_CONTROLLER_IMAGE")]
     pub(crate) controller_uri: Option<String>,
@@ -579,11 +605,13 @@ impl From<TestsysImages> for testsys_config::TestsysImages {
             vsphere_k8s_cluster_resource_agent_image: val.vsphere_k8s_cluster_resource,
             metal_k8s_cluster_resource_agent_image: val.metal_k8s_cluster_resource,
             ec2_resource_agent_image: val.ec2_resource,
+            ec2_karpenter_resource_agent_image: val.ec2_karpenter_resource,
             vsphere_vm_resource_agent_image: val.vsphere_vm_resource,
             sonobuoy_test_agent_image: val.sonobuoy_test,
             ecs_test_agent_image: val.ecs_test,
             migration_test_agent_image: val.migration_test,
             k8s_workload_agent_image: val.k8s_workload,
+            ecs_workload_agent_image: val.ecs_workload,
             controller_image: val.controller_uri,
             testsys_agent_pull_secret: val.secret,
         }

@@ -28,7 +28,7 @@ BUILDSYS_PRETTY_NAME = "Bottlerocket OS"
 # SDK name used for building
 BUILDSYS_SDK_NAME="bottlerocket"
 # SDK version used for building
-BUILDSYS_SDK_VERSION="v0.31.0"
+BUILDSYS_SDK_VERSION="v0.32.0"
 # Site for fetching the SDK
 BUILDSYS_REGISTRY="public.ecr.aws/bottlerocket"
 
@@ -105,6 +105,10 @@ DOCKER_BUILDKIT = "1"
 # multiple `Infra.toml` files for publishing to different places, and wants to
 # write AMI information to specifically named files.
 AMI_DATA_FILE_SUFFIX = "amis.json"
+
+# This is the filename suffix for operations that write out SSM parameter information
+# to file. It can be overridden with -e.
+SSM_DATA_FILE_SUFFIX = "ssm-params.json"
 
 # The type of testsys test that should be run.
 # `quick` will run a quick test which usually tests that the instances are reachable.
@@ -375,6 +379,7 @@ dependencies = [
    "unit-tests",
    "check-fmt",
    "check-lints",
+   "check-migrations",
 ]
 
 [tasks.check-fmt]
@@ -540,6 +545,85 @@ for m in ${GO_MODULES}; do
         golangci-lint run --config "${config_path}"
     cd "${top_path}"
 done'''
+]
+
+[tasks.check-migrations]
+script_runner = "bash"
+script = [
+'''
+# Collect all found problems and report in bulk; patterns become easier to see
+problems=()
+
+# From Release.toml's
+#
+#     version = "1.14.0"
+#                ^^^^^^
+#             extract this
+version=$(grep -Po '(?<=^version = ")[0-9.]+(?=")' Release.toml)
+if [[ -z ${version} ]]; then
+    echo "Cannot determine current Bottlerocket version."
+    exit 1
+fi
+
+migrations_root="sources/api/migration/migrations/v${version}"
+
+# First pass: Check all migrations explicitly listed in Release.toml
+
+# From Release.toml's
+#
+#     "(0.4.0, 0.4.1)" = ["migrate_v0.4.1_add-version-lock-ignore-waves.lz4", "migrate_v0.4.1_pivot-repo-2020-07-07.lz4"]
+#                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                       ^^^^^^^^^^^^^^^^^^^^^
+#                                                  extract this                                     and this
+mapfile -t migrations < <(
+    grep -Po "(?<=\"migrate_v${version}_)[^\"]+(?=.lz4\")" Release.toml
+)
+for name in "${migrations[@]}"; do
+    # actual migration exists
+    if ! [[ -d ${migrations_root}/${name} ]]; then
+        problems+=("Migration '${name}' does not exist")
+        continue
+    fi
+
+    # migration's Cargo.toml
+    pattern="name = \"${name}\""
+    if ! grep -q "${pattern}" "${migrations_root}/${name}/Cargo.toml"; then
+        problems+=("Migration '${name}' is named differently in its Cargo.toml")
+    fi
+
+    # sources/Cargo.toml
+    pattern="${migrations_root#sources/}/${name}"
+    if ! grep -q "${pattern}" sources/Cargo.toml; then
+        problems+=("Migration '${name}' is missing in sources/Cargo.toml")
+    fi
+
+    # sources/Cargo.lock
+    pattern="name = \"${name}\""
+    if ! grep -q "${pattern}" sources/Cargo.lock; then
+        problems+=("Migration '${name}' is missing in sources/Cargo.lock")
+    fi
+done
+
+# Second pass: Find existing migrations that have not been listed in Release.toml
+
+if [[ -d ${migrations_root} ]]; then
+    mapfile -t undeclared_migrations < <(
+        comm -13 \
+            <(printf '%s\n' "${migrations[@]}" | LC=C sort) \
+            <(find "${migrations_root}" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | LC=C sort)
+    )
+    for name in "${undeclared_migrations[@]}"; do
+        problems+=("Migration '${name}' is missing a declaration in Release.toml")
+    done
+fi
+
+# Rattle off whatever we found
+
+if [[ ${#problems[@]} -gt 0 ]]; then
+    echo "Found ${#problems[@]} problem(s) with data store migrations:"
+    printf "    - %s\n" "${problems[@]}"
+    exit 1
+fi
+'''
 ]
 
 [tasks.build-tools]
@@ -1242,6 +1326,36 @@ pubsys \
 '''
 ]
 
+[tasks.validate-ami]
+# Rather than depend on "build", which currently rebuilds images each run, we
+# depend on publish-tools and check for the input file below to save time.
+# This does mean that `cargo make ami` must be run before `cargo make validate-ami`.
+dependencies = ["publish-tools"]
+script_runner = "bash"
+script = [
+'''
+set -e
+
+export PATH="${BUILDSYS_TOOLS_DIR}/bin:${PATH}"
+
+expected_amis_path="${BUILDSYS_VARIANT_DIR}/${BUILDSYS_NAME_FULL}-${AMI_DATA_FILE_SUFFIX}"
+if [ ! -s "${expected_amis_path}" ]; then
+   echo "AMI input file doesn't exist for the current version/commit - ${BUILDSYS_VERSION_FULL} - please run 'cargo make ami'" >&2
+   exit 1
+fi
+
+pubsys \
+   --infra-config-path "${PUBLISH_INFRA_CONFIG_PATH}" \
+   \
+   validate-ami \
+   \
+   --expected-amis-path "${expected_amis_path}" \
+   \
+   ${AMI_VALIDATION_RESULTS_FILTER:+--write-results-filter "${AMI_VALIDATION_RESULTS_FILTER}"} \
+   ${AMI_VALIDATION_RESULTS_PATH:+--write-results-path "${AMI_VALIDATION_RESULTS_PATH}"}
+'''
+]
+
 [tasks.ssm]
 # Rather than depend on "build", which currently rebuilds images each run, we
 # depend on publish-tools and check for the input file below to save time.
@@ -1260,6 +1374,8 @@ if [ ! -s "${ami_input}" ]; then
    exit 1
 fi
 
+ssm_parameter_output="${BUILDSYS_VARIANT_DIR}/${BUILDSYS_NAME_FULL}-${SSM_DATA_FILE_SUFFIX}"
+
 pubsys \
    --infra-config-path "${PUBLISH_INFRA_CONFIG_PATH}" \
    \
@@ -1270,6 +1386,7 @@ pubsys \
    --variant "${BUILDSYS_VARIANT}" \
    --version "${BUILDSYS_VERSION_FULL}" \
    --template-path "${PUBLISH_SSM_TEMPLATES_PATH}" \
+   --ssm-parameter-output "${ssm_parameter_output}" \
    \
    ${PUBLISH_REGIONS:+--regions "${PUBLISH_REGIONS}"} \
    ${ALLOW_CLOBBER:+--allow-clobber}
@@ -1292,6 +1409,8 @@ if [ -z "${target}" ]; then
    exit 1
 fi
 
+ssm_parameter_output="${BUILDSYS_VARIANT_DIR}/${BUILDSYS_NAME_FULL}-${SSM_DATA_FILE_SUFFIX}"
+
 pubsys \
    --infra-config-path "${PUBLISH_INFRA_CONFIG_PATH}" \
    \
@@ -1302,8 +1421,39 @@ pubsys \
    --source "${source}" \
    --target "${target}" \
    --template-path "${PUBLISH_SSM_TEMPLATES_PATH}" \
+   --ssm-parameter-output "${ssm_parameter_output}" \
    \
    ${PUBLISH_REGIONS:+--regions "${PUBLISH_REGIONS}"}
+'''
+]
+
+[tasks.validate-ssm]
+# Rather than depend on "build", which currently rebuilds images each run, we
+# depend on publish-tools and check for the input file below to save time.
+# This does mean that `cargo make ssm` must be run before `cargo make validate-ssm`.
+dependencies = ["publish-tools"]
+script_runner = "bash"
+script = [
+'''
+set -e
+
+export PATH="${BUILDSYS_TOOLS_DIR}/bin:${PATH}"
+
+expected_parameters_path="${BUILDSYS_VARIANT_DIR}/${BUILDSYS_NAME_FULL}-${SSM_DATA_FILE_SUFFIX}"
+if [ ! -s "${expected_parameters_path}" ]; then
+   echo "SSM parameters file doesn't exist for the current version/commit - ${BUILDSYS_VERSION_FULL} - please run 'cargo make ssm'" >&2
+   exit 1
+fi
+
+pubsys \
+   --infra-config-path "${PUBLISH_INFRA_CONFIG_PATH}" \
+   \
+   validate-ssm \
+   \
+   --expected-parameters-path "${expected_parameters_path}" \
+   \
+   ${SSM_VALIDATION_RESULTS_FILTER:+--write-results-filter "${SSM_VALIDATION_RESULTS_FILTER}"} \
+   ${SSM_VALIDATION_RESULTS_PATH:+--write-results-path "${SSM_VALIDATION_RESULTS_PATH}"}
 '''
 ]
 

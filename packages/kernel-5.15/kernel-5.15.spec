@@ -1,13 +1,13 @@
 %global debug_package %{nil}
 
 Name: %{_cross_os}kernel-5.15
-Version: 5.15.106
+Version: 5.15.108
 Release: 1%{?dist}
 Summary: The Linux kernel
 License: GPL-2.0 WITH Linux-syscall-note
 URL: https://www.kernel.org/
 # Use latest-srpm-url.sh to get this.
-Source0: https://cdn.amazonlinux.com/blobstore/a05414b6b80f2113b47d97b12e0a706c05597c2dd2100da31341333605de9209/kernel-5.15.106-64.140.amzn2.src.rpm
+Source0: https://cdn.amazonlinux.com/blobstore/e8de7cc956678c88e06d181df5b0dde1c39fdc2fce4a47b5b466585f1e164a35/kernel-5.15.108-65.141.amzn2.src.rpm
 Source100: config-bottlerocket
 Source101: config-bottlerocket-aws
 Source102: config-bottlerocket-metal
@@ -19,6 +19,11 @@ Patch1001: 1001-Makefile-add-prepare-target-for-external-modules.patch
 Patch1002: 1002-Revert-kbuild-hide-tools-build-targets-from-external.patch
 # Enable INITRAMFS_FORCE config option for our use case.
 Patch1003: 1003-initramfs-unlink-INITRAMFS_FORCE-from-CMDLINE_-EXTEN.patch
+# Increase default of sysctl net.unix.max_dgram_qlen to 512.
+Patch1004: 1004-af_unix-increase-default-max_dgram_qlen-to-512.patch
+
+# Backport from v5.15.111 upstream, drop when Amazon Linux base is v5.15.111 or later
+Patch5001: 5001-netfilter-nf_tables-deactivate-anonymous-set-from-pr.patch
 
 BuildRequires: bc
 BuildRequires: elfutils-devel

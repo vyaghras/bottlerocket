@@ -19,45 +19,35 @@ Entries are sorted by filename, and later entries take precedence.
 
 The `#[model]` attribute on Settings and its sub-structs reduces duplication and adds some required metadata; see [its docs](model-derive/) for details.
 
-## aws-k8s-1.22: Kubernetes 1.22
-
-* [Model](src/aws-k8s-1.22/mod.rs)
-* [Default settings](src/aws-k8s-1.22/defaults.d/)
-
-## aws-k8s-1.22-nvidia: Kubernetes 1.22 NVIDIA
-
-* [Model](src/aws-k8s-1.22-nvidia/mod.rs)
-* [Default settings](src/aws-k8s-1.22-nvidia/defaults.d/)
-
 ## aws-k8s-1.23: Kubernetes 1.23
 
-* [Model](src/aws-k8s-1.26/mod.rs)
-* [Default settings](src/aws-k8s-1.26/defaults.d/)
+* [Model](src/aws-k8s-1.25/mod.rs)
+* [Default settings](src/aws-k8s-1.25/defaults.d/)
 
 ## aws-k8s-1.23-nvidia: Kubernetes 1.23 NVIDIA
 
-* [Model](src/aws-k8s-1.26-nvidia/mod.rs)
-* [Default settings](src/aws-k8s-1.26-nvidia/defaults.d/)
+* [Model](src/aws-k8s-1.25-nvidia/mod.rs)
+* [Default settings](src/aws-k8s-1.25-nvidia/defaults.d/)
 
 ## aws-k8s-1.24: Kubernetes 1.24
 
-* [Model](src/aws-k8s-1.26/mod.rs)
-* [Default settings](src/aws-k8s-1.26/defaults.d/)
+* [Model](src/aws-k8s-1.25/mod.rs)
+* [Default settings](src/aws-k8s-1.25/defaults.d/)
 
 ## aws-k8s-1.24-nvidia: Kubernetes 1.24 NVIDIA
 
-* [Model](src/aws-k8s-1.26-nvidia/mod.rs)
-* [Default settings](src/aws-k8s-1.26-nvidia/defaults.d/)
+* [Model](src/aws-k8s-1.25-nvidia/mod.rs)
+* [Default settings](src/aws-k8s-1.25-nvidia/defaults.d/)
 
 ## aws-k8s-1.25: Kubernetes 1.25
 
-* [Model](src/aws-k8s-1.26/mod.rs)
-* [Default settings](src/aws-k8s-1.26/defaults.d/)
+* [Model](src/aws-k8s-1.25/mod.rs)
+* [Default settings](src/aws-k8s-1.25/defaults.d/)
 
 ## aws-k8s-1.25-nvidia: Kubernetes 1.25 NVIDIA
 
-* [Model](src/aws-k8s-1.26-nvidia/mod.rs)
-* [Default settings](src/aws-k8s-1.26-nvidia/defaults.d/)
+* [Model](src/aws-k8s-1.25-nvidia/mod.rs)
+* [Default settings](src/aws-k8s-1.25-nvidia/defaults.d/)
 
 ## aws-k8s-1.26: Kubernetes 1.26
 
@@ -68,6 +58,16 @@ The `#[model]` attribute on Settings and its sub-structs reduces duplication and
 
 * [Model](src/aws-k8s-1.26-nvidia/mod.rs)
 * [Default settings](src/aws-k8s-1.26-nvidia/defaults.d/)
+
+## aws-k8s-1.27: Kubernetes 1.27
+
+* [Model](src/aws-k8s-1.27/mod.rs)
+* [Default settings](src/aws-k8s-1.27/defaults.d/)
+
+## aws-k8s-1.27-nvidia: Kubernetes 1.27 NVIDIA
+
+* [Model](src/aws-k8s-1.27-nvidia/mod.rs)
+* [Default settings](src/aws-k8s-1.27-nvidia/defaults.d/)
 
 ## aws-ecs-1: Amazon ECS
 
@@ -84,60 +84,60 @@ The `#[model]` attribute on Settings and its sub-structs reduces duplication and
 * [Model](src/vmware-dev/mod.rs)
 * [Default settings](src/vmware-dev/defaults.d/)
 
-## vmware-k8s-1.22: VMware Kubernetes 1.22
-
-* [Model](src/vmware-k8s-1.22/mod.rs)
-* [Default settings](src/vmware-k8s-1.22/defaults.d/)
-
 ## vmware-k8s-1.23: VMware Kubernetes 1.23
 
-* [Model](src/vmware-k8s-1.26/mod.rs)
-* [Default settings](src/vmware-k8s-1.26/defaults.d/)
+* [Model](src/vmware-k8s-1.27/mod.rs)
+* [Default settings](src/vmware-k8s-1.27/defaults.d/)
 
 ## vmware-k8s-1.24: VMware Kubernetes 1.24
 
-* [Model](src/vmware-k8s-1.26/mod.rs)
-* [Default settings](src/vmware-k8s-1.26/defaults.d/)
+* [Model](src/vmware-k8s-1.27/mod.rs)
+* [Default settings](src/vmware-k8s-1.27/defaults.d/)
 
 ## vmware-k8s-1.25: VMware Kubernetes 1.25
 
-* [Model](src/vmware-k8s-1.26/mod.rs)
-* [Default settings](src/vmware-k8s-1.26/defaults.d/)
+* [Model](src/vmware-k8s-1.27/mod.rs)
+* [Default settings](src/vmware-k8s-1.27/defaults.d/)
 
 ## vmware-k8s-1.26: VMware Kubernetes 1.26
 
-* [Model](src/vmware-k8s-1.26/mod.rs)
-* [Default settings](src/vmware-k8s-1.26/defaults.d/)
+* [Model](src/vmware-k8s-1.27/mod.rs)
+* [Default settings](src/vmware-k8s-1.27/defaults.d/)
+
+## vmware-k8s-1.27: VMware Kubernetes 1.27
+
+* [Model](src/vmware-k8s-1.27/mod.rs)
+* [Default settings](src/vmware-k8s-1.27/defaults.d/)
 
 ## metal-dev: Metal development build
 
 * [Model](src/metal-dev/mod.rs)
 * [Default settings](src/metal-dev/defaults.d/)
 
-## metal-k8s-1.22: Metal Kubernetes 1.22
-
-* [Model](src/metal-k8s-1.23/mod.rs)
-* [Default settings](src/metal-k8s-1.22/defaults.d/)
-
 ## metal-k8s-1.23: Metal Kubernetes 1.23
 
-* [Model](src/metal-k8s-1.26/mod.rs)
-* [Default settings](src/metal-k8s-1.26/defaults.d/)
+* [Model](src/metal-k8s-1.27/mod.rs)
+* [Default settings](src/metal-k8s-1.27/defaults.d/)
 
 ## metal-k8s-1.24: Metal Kubernetes 1.24
 
-* [Model](src/metal-k8s-1.26/mod.rs)
-* [Default settings](src/metal-k8s-1.26/defaults.d/)
+* [Model](src/metal-k8s-1.27/mod.rs)
+* [Default settings](src/metal-k8s-1.27/defaults.d/)
 
 ## metal-k8s-1.25: Metal Kubernetes 1.25
 
-* [Model](src/metal-k8s-1.26/mod.rs)
-* [Default settings](src/metal-k8s-1.26/defaults.d/)
+* [Model](src/metal-k8s-1.27/mod.rs)
+* [Default settings](src/metal-k8s-1.27/defaults.d/)
 
 ## metal-k8s-1.26: Metal Kubernetes 1.26
 
-* [Model](src/metal-k8s-1.26/mod.rs)
-* [Default settings](src/metal-k8s-1.26/defaults.d/)
+* [Model](src/metal-k8s-1.27/mod.rs)
+* [Default settings](src/metal-k8s-1.27/defaults.d/)
+
+## metal-k8s-1.27: Metal Kubernetes 1.27
+
+* [Model](src/metal-k8s-1.27/mod.rs)
+* [Default settings](src/metal-k8s-1.27/defaults.d/)
 
 # This directory
 
@@ -173,6 +173,10 @@ mod variant;
 mod de;
 
 use modeled_types::KubernetesCPUManagerPolicyOption;
+use modeled_types::KubernetesEvictionKey;
+use modeled_types::KubernetesMemoryManagerPolicy;
+use modeled_types::KubernetesMemoryReservation;
+use modeled_types::NonNegativeInteger;
 pub use variant::*;
 
 // Types used to communicate between client and server for 'apiclient exec'.
@@ -193,11 +197,11 @@ use crate::modeled_types::{
     DNSDomain, ECSAgentImagePullBehavior, ECSAgentLogLevel, ECSAttributeKey, ECSAttributeValue,
     ECSDurationValue, EtcHostsEntries, FriendlyVersion, Identifier, IntegerPercent, KmodKey,
     KubernetesAuthenticationMode, KubernetesBootstrapToken, KubernetesCloudProvider,
-    KubernetesClusterDnsIp, KubernetesClusterName, KubernetesDurationValue,
-    KubernetesEvictionHardKey, KubernetesLabelKey, KubernetesLabelValue, KubernetesQuantityValue,
-    KubernetesReservedResourceKey, KubernetesTaintValue, KubernetesThresholdValue, Lockdown,
-    OciDefaultsCapability, OciDefaultsResourceLimitType, PemCertificateString, SingleLineString,
-    SysctlKey, TopologyManagerPolicy, TopologyManagerScope, Url, ValidBase64, ValidLinuxHostname,
+    KubernetesClusterDnsIp, KubernetesClusterName, KubernetesDurationValue, KubernetesLabelKey,
+    KubernetesLabelValue, KubernetesQuantityValue, KubernetesReservedResourceKey,
+    KubernetesTaintValue, KubernetesThresholdValue, Lockdown, OciDefaultsCapability,
+    OciDefaultsResourceLimitType, PemCertificateString, SingleLineString, SysctlKey,
+    TopologyManagerPolicy, TopologyManagerScope, Url, ValidBase64, ValidLinuxHostname,
 };
 
 // Kubernetes static pod manifest settings
@@ -228,7 +232,10 @@ struct KubernetesSettings {
     authentication_mode: KubernetesAuthenticationMode,
     bootstrap_token: KubernetesBootstrapToken,
     standalone_mode: bool,
-    eviction_hard: HashMap<KubernetesEvictionHardKey, KubernetesThresholdValue>,
+    eviction_hard: HashMap<KubernetesEvictionKey, KubernetesThresholdValue>,
+    eviction_soft: HashMap<KubernetesEvictionKey, KubernetesThresholdValue>,
+    eviction_soft_grace_period: HashMap<KubernetesEvictionKey, KubernetesDurationValue>,
+    eviction_max_pod_grace_period: NonNegativeInteger,
     kube_reserved: HashMap<KubernetesReservedResourceKey, KubernetesQuantityValue>,
     system_reserved: HashMap<KubernetesReservedResourceKey, KubernetesQuantityValue>,
     allowed_unsafe_sysctls: Vec<SingleLineString>,
@@ -242,6 +249,7 @@ struct KubernetesSettings {
     kube_api_burst: i32,
     container_log_max_size: KubernetesQuantityValue,
     container_log_max_files: i32,
+    cpu_cfs_quota_enforced: bool,
     cpu_manager_policy: CpuManagerPolicy,
     cpu_manager_reconcile_period: KubernetesDurationValue,
     cpu_manager_policy_options: Vec<KubernetesCPUManagerPolicyOption>,
@@ -255,6 +263,10 @@ struct KubernetesSettings {
     credential_providers: HashMap<Identifier, CredentialProvider>,
     server_certificate: ValidBase64,
     server_key: ValidBase64,
+    shutdown_grace_period: KubernetesDurationValue,
+    shutdown_grace_period_for_critical_pods: KubernetesDurationValue,
+    memory_manager_reserved_memory: HashMap<Identifier, KubernetesMemoryReservation>,
+    memory_manager_policy: KubernetesMemoryManagerPolicy,
 
     // Settings where we generate a value based on the runtime environment.  The user can specify a
     // value to override the generated one, but typically would not.
@@ -454,6 +466,8 @@ pub type ConfigurationFiles = HashMap<String, ConfigurationFile>;
 struct ConfigurationFile {
     path: SingleLineString,
     template_path: SingleLineString,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    mode: Option<String>,
 }
 
 ///// Metadata
