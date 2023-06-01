@@ -38,6 +38,7 @@ Source1010: mnt.mount
 Source1012: opt-cni-bin.mount
 Source1013: local.mount
 Source1014: root-.aws.mount
+Source1017: opt-aws-amazon\\x2dcloudwatch\\x2dagent-bin.mount
 
 # CD-ROM mount & associated udev rules
 Source1015: media-cdrom.mount
@@ -141,7 +142,7 @@ EOF
 install -d %{buildroot}%{_cross_unitdir}
 install -p -m 0644 \
   %{S:1001} %{S:1002} %{S:1003} %{S:1004} %{S:1005} %{S:1006} %{S:1007} \
-  %{S:1008} %{S:1009} %{S:1010} %{S:1011} %{S:1012} %{S:1013} %{S:1015} \
+  %{S:1008} %{S:1009} %{S:1010} %{S:1011} %{S:1012} %{S:1017} %{S:1013} %{S:1015} \
   %{S:1040} %{S:1041} %{S:1042} %{S:1043} %{S:1044} %{S:1045} %{S:1046} \
   %{S:1047} %{S:1048} %{S:1049} %{S:1060} %{S:1061} %{S:1062} %{S:1080} \
   %{S:1014} \
@@ -212,6 +213,7 @@ ln -s preconfigured.target %{buildroot}%{_cross_unitdir}/default.target
 %{_cross_unitdir}/mnt.mount
 %{_cross_unitdir}/etc-cni.mount
 %{_cross_unitdir}/opt-cni-bin.mount
+%{_cross_unitdir}/opt-aws-amazon\\x2dcloudwatch\\x2dagent-bin.mount
 %{_cross_unitdir}/media-cdrom.mount
 %{_cross_unitdir}/local.mount
 %{_cross_unitdir}/*-lower.mount
