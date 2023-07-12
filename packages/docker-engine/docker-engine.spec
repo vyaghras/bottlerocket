@@ -27,6 +27,8 @@ Source5: daemon-nvidia-json
 # Create container storage mount point.
 Source100: prepare-var-lib-docker.service
 
+Patch1: 0001-Change-default-capabilities-using-daemon-config.patch
+
 Source1000: clarify.toml
 
 BuildRequires: git

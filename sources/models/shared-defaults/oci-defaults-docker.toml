@@ -1,0 +1,10 @@
+[metadata.settings.oci-defaults]
+affected-services = ["oci-defaults", "docker"]
+
+[services.oci-defaults]
+configuration-files = ["oci-defaults"]
+restart-commands = []
+
+[configuration-files.oci-defaults]
+path = "/etc/docker/daemon.json"
+template-path = "/usr/share/templates/docker-daemon-json"

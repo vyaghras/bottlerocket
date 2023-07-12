@@ -307,6 +307,9 @@ mod error {
             number: usize,
             source: std::num::TryFromIntError,
         },
+
+        #[snafu(display("Variant {} is invalid, use docker or k8s", var))]
+        InvalidVariant { var: String },
     }
 
     // Handlebars helpers are required to return a RenderError.
@@ -1369,6 +1372,79 @@ enum OciSpecSection {
     ResourceLimits,
 }
 
+trait OciDefaultsFormatter {
+    fn get_capabilities(&self, caps: String) -> String;
+    fn get_resource_limits(
+        &self,
+        rlimit_type: &OciDefaultsResourceLimitType,
+        values: &OciDefaultsResourceLimit,
+    ) -> String;
+}
+
+pub struct Docker();
+
+impl OciDefaultsFormatter for Docker {
+    /// Format capabilities for ecs variants
+    fn get_capabilities(&self, caps: String) -> String {
+        format!(
+            concat!(r#"["#, "{capabilities_bounding}", "],\n",),
+            capabilities_bounding = caps,
+        )
+    }
+
+    /// Format resource limits for ecs variants
+    fn get_resource_limits(
+        &self,
+        rlimit_type: &OciDefaultsResourceLimitType,
+        values: &OciDefaultsResourceLimit,
+    ) -> String {
+        format!(
+            r#" "{}":{{ "Name": "{}", "Hard": {}, "Soft": {} }}"#,
+            rlimit_type.to_linux_string().replace("RLIMIT_", ""),
+            rlimit_type.to_linux_string().replace("RLIMIT_", ""),
+            values.hard_limit,
+            values.soft_limit,
+        )
+    }
+}
+
+pub struct Containerd();
+impl OciDefaultsFormatter for Containerd {
+    /// Format capabilities for kubernetes variants
+    fn get_capabilities(&self, caps: String) -> String {
+        format!(
+            concat!(
+                r#""bounding": ["#,
+                "{capabilities_bounding}",
+                "],\n",
+                r#""effective": ["#,
+                "{capabilities_effective}",
+                "],\n",
+                r#""permitted": ["#,
+                "{capabilities_permitted}",
+                "]\n",
+            ),
+            capabilities_bounding = caps,
+            capabilities_effective = caps,
+            capabilities_permitted = caps,
+        )
+    }
+
+    /// Format resource limits for kubernetes variants
+    fn get_resource_limits(
+        &self,
+        rlimit_type: &OciDefaultsResourceLimitType,
+        values: &OciDefaultsResourceLimit,
+    ) -> String {
+        format!(
+            r#"{{ "type": "{}", "hard": {}, "soft": {} }}"#,
+            rlimit_type.to_linux_string(),
+            values.hard_limit,
+            values.soft_limit,
+        )
+    }
+}
+
 derive_fromstr_from_deserialize!(OciSpecSection);
 
 /// This helper writes out the default OCI runtime spec.
@@ -1393,31 +1469,38 @@ pub fn oci_defaults(
 ) -> Result<(), RenderError> {
     // To give context to our errors, get the template name (e.g. what file we are rendering), if available.
     debug!("Starting oci_defaults helper");
+
     let template_name = template_name(renderctx);
     debug!("Template name: {}", &template_name);
 
     // Check number of parameters, must be exactly two (OCI spec section to render and settings values for the section)
     debug!("Number of params: {}", helper.params().len());
-    check_param_count(helper, template_name, 1)?;
+    check_param_count(helper, template_name, 2)?;
     debug!("params: {:?}", helper.params());
 
     debug!("Getting the requested OCI spec section to render");
     let oci_defaults_values = get_param(helper, 0)?;
+
     // We want the settings path so we know which OCI spec section we are rendering.
     // e.g. settings.oci-defaults.resource-limits
     let settings_path = get_param_key_name(helper, 0)?;
+
+    let variant = get_param(helper, 1)?;
+
+    let formatter: Box<dyn OciDefaultsFormatter> = get_variant(variant)?;
+
     // Extract the last part of the settings path, which is the OCI spec section we want to render.
     let oci_spec_section = settings_path
         .split('.')
         .last()
-        .expect("did not find (got None for) an oci_spec_section");
+        .expect("did not find (got None for) an oc i_spec_section");
 
-    // Render the requested OCI spec section
+    // Get the requested OCI spec section
     let section =
         OciSpecSection::from_str(oci_spec_section).context(error::InvalidOciSpecSectionSnafu)?;
     let result_lines = match section {
-        OciSpecSection::Capabilities => oci_spec_capabilities(oci_defaults_values)?,
-        OciSpecSection::ResourceLimits => oci_spec_resource_limits(oci_defaults_values)?,
+        OciSpecSection::Capabilities => oci_spec_capabilities(oci_defaults_values, formatter)?,
+        OciSpecSection::ResourceLimits => oci_spec_resource_limits(oci_defaults_values, formatter)?,
     };
 
     // Write out the final values to the configuration file
@@ -1439,7 +1522,10 @@ pub fn oci_defaults(
 /// This helper function generates the linux capabilities section of
 /// the OCI runtime spec from the provided `value` parameter, which is
 /// the settings data from the datastore (`settings.oci-defaults.capabilities`).
-fn oci_spec_capabilities(value: &Value) -> Result<String, RenderError> {
+fn oci_spec_capabilities(
+    value: &Value,
+    variant: Box<dyn OciDefaultsFormatter>,
+) -> Result<String, RenderError> {
     let oci_default_capabilities: HashMap<OciDefaultsCapability, bool> =
         serde_json::from_value(value.clone())?;
 
@@ -1454,22 +1540,7 @@ fn oci_spec_capabilities(value: &Value) -> Result<String, RenderError> {
     capabilities_lines.sort();
     let capabilities_lines_joined = capabilities_lines.join(",\n");
 
-    let capabilities_section = format!(
-        concat!(
-            r#""bounding": ["#,
-            "{capabilities_bounding}",
-            "],\n",
-            r#""effective": ["#,
-            "{capabilities_effective}",
-            "],\n",
-            r#""permitted": ["#,
-            "{capabilities_permitted}",
-            "]\n",
-        ),
-        capabilities_bounding = capabilities_lines_joined,
-        capabilities_effective = capabilities_lines_joined,
-        capabilities_permitted = capabilities_lines_joined,
-    );
+    let capabilities_section = variant.get_capabilities(capabilities_lines_joined);
 
     debug!("capabilities_section: \n{}", capabilities_section);
 
@@ -1486,20 +1557,16 @@ fn oci_spec_capabilities(value: &Value) -> Result<String, RenderError> {
 /// This helper function generates the resource limits section of
 /// the OCI runtime spec from the provided `value` parameter, which is
 /// the settings data from the datastore (`settings.oci-defaults.resource-limits`).
-fn oci_spec_resource_limits(value: &Value) -> Result<String, RenderError> {
+fn oci_spec_resource_limits(
+    value: &Value,
+    variant: Box<dyn OciDefaultsFormatter>,
+) -> Result<String, RenderError> {
     let oci_default_rlimits: HashMap<OciDefaultsResourceLimitType, OciDefaultsResourceLimit> =
         serde_json::from_value(value.clone())?;
 
     let result_lines = oci_default_rlimits
         .iter()
-        .map(|(rlimit_type, values)| {
-            format!(
-                r#"{{ "type": "{}", "hard": {}, "soft": {} }}"#,
-                rlimit_type.to_linux_string(),
-                values.hard_limit,
-                values.soft_limit,
-            )
-        })
+        .map(|(rlimit_type, values)| variant.get_resource_limits(rlimit_type, values))
         .collect::<Vec<String>>()
         .join(",\n");
 
@@ -1509,6 +1576,20 @@ fn oci_spec_resource_limits(value: &Value) -> Result<String, RenderError> {
 
 // =^..^=   =^..^=   =^..^=   =^..^=   =^..^=   =^..^=   =^..^=   =^..^=   =^..^=   =^..^=   =^..^=
 // helpers to the helpers
+
+/// Gets Struct to identify the formatter for capabilities and resource limits.
+fn get_variant(variant: &Value) -> Result<Box<dyn OciDefaultsFormatter>, RenderError> {
+    let formatter = variant.to_string();
+    match formatter.as_str() {
+        "docker" => Ok(Box::new(Docker {})),
+        "k8s" => Ok(Box::new(Containerd {})),
+        _ => Err(RenderError::from(
+            error::TemplateHelperError::InvalidVariant {
+                var: formatter,
+            },
+        )),
+    }
+}
 
 /// Gets the key name (path) of the parameter at `index`. Returns an error if the param cannot be extracted.
 fn get_param_key_name<'a>(
@@ -2712,7 +2793,7 @@ mod test_oci_spec {
             "mac-admin": true,
             "mknod": true
         });
-        let rendered = oci_spec_capabilities(&json).unwrap();
+        let rendered = oci_spec_capabilities(&json, Box::new(Containerd {})).unwrap();
         assert_eq!(
             rendered,
             r#""bounding": ["CAP_KILL",
@@ -2731,10 +2812,38 @@ mod test_oci_spec {
     #[test]
     fn oci_spec_resource_limits_test() {
         let json = json!({"max-open-files": {"hard-limit": 1, "soft-limit": 2}});
-        let rendered = oci_spec_resource_limits(&json).unwrap();
+        let rendered = oci_spec_resource_limits(&json, Box::new(Containerd {})).unwrap();
         assert_eq!(
             rendered,
             r#"{ "type": "RLIMIT_NOFILE", "hard": 1, "soft": 2 }"#
+        );
+    }
+
+    #[test]
+    fn oci_spec_capabilities_docker_test() {
+        let json = json!({
+            "kill": true,
+            "lease": false,
+            "mac-admin": true,
+            "mknod": true
+        });
+        let rendered = oci_spec_capabilities(&json, Box::new(Docker {})).unwrap();
+        assert_eq!(
+            rendered,
+            r#"["CAP_KILL",
+"CAP_MAC_ADMIN",
+"CAP_MKNOD"],
+"#
+        );
+    }
+
+    #[test]
+    fn oci_spec_resource_limits_test_docker() {
+        let json = json!({"max-open-files": {"hard-limit": 1, "soft-limit": 2}});
+        let rendered = oci_spec_resource_limits(&json, Box::new(Docker {})).unwrap();
+        assert_eq!(
+            rendered,
+            r#" "NOFILE":{ "Name": "NOFILE", "Hard": 1, "Soft": 2 }"#
         );
     }
 }
