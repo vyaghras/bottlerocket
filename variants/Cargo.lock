@@ -21,6 +21,7 @@ name = "aws-dev"
 version = "0.1.0"
 dependencies = [
  "chrony",
+ "cloudwatch-agent",
  "docker-cli",
  "docker-engine",
  "docker-init",
@@ -205,6 +206,7 @@ name = "aws-k8s-1_27"
 version = "0.1.0"
 dependencies = [
  "aws-iam-authenticator",
+ "cloudwatch-agent",
  "cni",
  "cni-plugins",
  "kernel-5_15",
@@ -259,6 +261,7 @@ name = "aws-k8s-1_29"
 version = "0.1.0"
 dependencies = [
  "aws-iam-authenticator",
+ "cloudwatch-agent",
  "cni",
  "cni-plugins",
  "kernel-6_1",
@@ -318,6 +321,13 @@ dependencies = [
  "libncurses",
  "libseccomp",
  "readline",
+]
+
+[[package]]
+name = "cloudwatch-agent"
+version = "0.1.0"
+dependencies = [
+ "glibc",
 ]
 
 [[package]]

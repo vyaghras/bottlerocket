@@ -37,6 +37,7 @@ included-packages = [
     "iputils",
     "strace",
     "chrony-tools",
+    "cloudwatch-agent",
 ]
 
 [lib]
@@ -55,3 +56,4 @@ login = { path = "../../packages/login" }
 iputils = { path = "../../packages/iputils" }
 strace = { path = "../../packages/strace" }
 chrony = { path = "../../packages/chrony" }
+cloudwatch-agent = { path = "../../packages/cloudwatch-agent"}

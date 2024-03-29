@@ -46,6 +46,7 @@ Source1026: media-cdrom.mount
 Source1027: root-.aws.mount
 Source1028: opt-cni.mount
 Source1029: opt-csi.mount
+Source1030: opt-aws-amazon-cloudwatch-agent-bin.mount
 
 # Mounts that require helper programs.
 Source1040: prepare-boot.service
@@ -184,6 +185,10 @@ KERNELPATH=$(systemd-escape --path %{_cross_usrsrc}/kernels)
 sed -e 's|PREFIX|%{_cross_prefix}|' %{S:1081} > ${KERNELPATH}.mount
 install -p -m 0644 ${KERNELPATH}.mount %{buildroot}%{_cross_unitdir}
 
+BINDIRPATH=$(systemd-escape --path opt/aws/amazon-cloudwatch-agent/bin/)
+sed -e 's|PREFIX|%{_cross_prefix}|' %{S:1030} > ${BINDIRPATH}.mount
+install -p -m 0644 ${BINDIRPATH}.mount %{buildroot}%{_cross_unitdir}
+
 # Mounting on usr/share/licenses requires using the real path: %{_cross_datadir}/licenses
 LICENSEPATH=$(systemd-escape --path %{_cross_licensedir})
 sed -e 's|PREFIX|%{_cross_prefix}|' %{S:1082} > ${LICENSEPATH}.mount
@@ -213,6 +218,7 @@ install -d %{buildroot}%{_cross_datadir}/logdog.d
 install -p -m 0644 %{S:1400} %{buildroot}%{_cross_datadir}/logdog.d
 
 ln -s preconfigured.target %{buildroot}%{_cross_unitdir}/default.target
+ls -ltr %{buildroot}%{_cross_unitdir}
 
 %files
 %{_cross_factorydir}%{_cross_sysconfdir}/nsswitch.conf
@@ -237,6 +243,7 @@ ln -s preconfigured.target %{buildroot}%{_cross_unitdir}/default.target
 %{_cross_unitdir}/prepare-opt.service
 %{_cross_unitdir}/prepare-var.service
 %{_cross_unitdir}/repart-local.service
+%{_cross_unitdir}/*-bin.mount
 %{_cross_unitdir}/var.mount
 %{_cross_unitdir}/opt.mount
 %{_cross_unitdir}/mnt.mount

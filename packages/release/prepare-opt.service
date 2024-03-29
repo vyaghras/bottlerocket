@@ -12,6 +12,10 @@ Type=oneshot
 ExecStart=/usr/bin/rm -rf /opt/cni
 ExecStart=/usr/bin/mkdir -p /opt/cni
 
+# Create the directories for a read-write overlayfs for amazon cloud watch agent.
+ExecStart=/usr/bin/rm -rf /opt/aws/amazon-cloudwatch-agent/bin
+ExecStart=/usr/bin/mkdir /opt/aws/amazon-cloudwatch-agent/bin
+
 # Create the directories for a read-write overlayfs for CSI helpers.
 ExecStart=/usr/bin/rm -rf /opt/csi
 ExecStart=/usr/bin/mkdir -p /opt/csi

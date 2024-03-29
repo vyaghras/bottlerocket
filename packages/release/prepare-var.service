@@ -16,7 +16,8 @@ ExecStart=/usr/bin/rm -rf \
     /var/lib/kernel-devel \
     /var/lib/kernel-modules \
     /var/lib/cni-plugins \
-    /var/lib/csi-helpers
+    /var/lib/csi-helpers \
+    /var/lib/amazon-cloudwatch-agent
 
 ExecStart=/usr/bin/mkdir -p \
     /var/lib/kernel-devel/.overlay/lower \
@@ -27,7 +28,9 @@ ExecStart=/usr/bin/mkdir -p \
     /var/lib/cni-plugins/.overlay/upper \
     /var/lib/cni-plugins/.overlay/work \
     /var/lib/csi-helpers/.overlay/upper \
-    /var/lib/csi-helpers/.overlay/work
+    /var/lib/csi-helpers/.overlay/work \
+    /var/lib/amazon-cloudwatch-agent/.overlay/upper \
+    /var/lib/amazon-cloudwatch-agent/.overlay/work
 
 # Ensure the directories are labeled as expected.
 ExecStart=/usr/sbin/setfiles \
@@ -35,7 +38,8 @@ ExecStart=/usr/sbin/setfiles \
     /var/lib/kernel-devel \
     /var/lib/kernel-modules \
     /var/lib/cni-plugins \
-    /var/lib/csi-helpers
+    /var/lib/csi-helpers \
+    /var/lib/amazon-cloudwatch-agent
 
 RemainAfterExit=true
 StandardError=journal+console
