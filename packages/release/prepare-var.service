@@ -16,7 +16,7 @@ ExecStart=/usr/bin/rm -rf \
     /var/lib/kernel-devel \
     /var/lib/kernel-modules \
     /var/lib/cni-plugins \
-    /var/lib/csi-helpers
+    /var/lib/csi-helpers 
 
 ExecStart=/usr/bin/mkdir -p \
     /var/lib/kernel-devel/.overlay/lower \
@@ -35,7 +35,7 @@ ExecStart=/usr/sbin/setfiles \
     /var/lib/kernel-devel \
     /var/lib/kernel-modules \
     /var/lib/cni-plugins \
-    /var/lib/csi-helpers
+    /var/lib/csi-helpers 
 
 RemainAfterExit=true
 StandardError=journal+console

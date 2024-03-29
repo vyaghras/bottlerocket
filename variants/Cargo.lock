@@ -21,6 +21,7 @@ name = "aws-dev"
 version = "0.1.0"
 dependencies = [
  "chrony",
+ "cloudwatch-agent",
  "docker-cli",
  "docker-engine",
  "docker-init",
@@ -318,6 +319,13 @@ dependencies = [
  "libncurses",
  "libseccomp",
  "readline",
+]
+
+[[package]]
+name = "cloudwatch-agent"
+version = "0.1.0"
+dependencies = [
+ "glibc",
 ]
 
 [[package]]

@@ -1,0 +1,20 @@
+[package]
+name = "cloudwatch-agent"
+version = "0.1.0"
+edition = "2021"
+publish = false
+build = "../build.rs"
+
+[lib]
+path = "../packages.rs"
+
+[package.metadata.build-package]
+releases-url = "https://github.com/aws/amazon-cloudwatch-agent/releases"
+
+[[package.metadata.build-package.external-files]]
+url = "https://github.com/aws/amazon-cloudwatch-agent/archive/v1.300034.0/amazon-cloudwatch-agent-1.300034.0.tar.gz"
+sha512 = "cda2f5523e7ec052c00fa45e416505ff21034a76f9466942227bb8b8f9e52d4c73e6b2a7df9dc49e4db01497f278cf7e7073e3582ef116a537110ff12e4b37d9"
+bundle-modules = [ "go" ]
+
+[build-dependencies]
+glibc = { path = "../glibc" }

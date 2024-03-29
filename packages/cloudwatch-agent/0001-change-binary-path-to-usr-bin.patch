@@ -1,0 +1,45 @@
+From c32c4e5466b005d2016b63c5035061513ff3f0ae Mon Sep 17 00:00:00 2001
+From: Shikha Vyaghra <vyaghras@amazon.com>
+Date: Tue, 9 Apr 2024 15:57:11 +0000
+Subject: [PATCH] change binary path to  usr/bin
+
+The default path for all the binaries is
+/opt/aws/amazon-cloudwatch-agent/bin. We will have to create an overlay in
+order to execute binaries in /opt/aws/amazon-cloudwatch-agent/bin,
+hence we are shipping all required binaries for amazon-cloud-watch-agent
+to usr/bin. To use this path in the binaries,
+we need to update the default binary path.
+---
+ packaging/dependencies/amazon-cloudwatch-agent-ctl | 2 +-
+ tool/paths/paths_unix.go                           | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/packaging/dependencies/amazon-cloudwatch-agent-ctl b/packaging/dependencies/amazon-cloudwatch-agent-ctl
+index 83f2f0c..8669338 100755
+--- a/packaging/dependencies/amazon-cloudwatch-agent-ctl
++++ b/packaging/dependencies/amazon-cloudwatch-agent-ctl
+@@ -7,7 +7,7 @@ set -e
+ set -u
+ 
+ readonly AGENTDIR="/opt/aws/amazon-cloudwatch-agent"
+-readonly CMDDIR="${AGENTDIR}/bin"
++readonly CMDDIR="/usr/bin"
+ readonly CONFDIR="${AGENTDIR}/etc"
+ readonly CWA_RESTART_FILE="${CONFDIR}/restart"
+ readonly VERSION_FILE="${CMDDIR}/CWAGENT_VERSION"
+diff --git a/tool/paths/paths_unix.go b/tool/paths/paths_unix.go
+index c59c702..cb70ae3 100644
+--- a/tool/paths/paths_unix.go
++++ b/tool/paths/paths_unix.go
+@@ -26,6 +26,6 @@ func init() {
+ 	CommonConfigPath = filepath.Join(AgentDir, "etc", COMMON_CONFIG)
+ 	YamlConfigPath = filepath.Join(AgentDir, "etc", YAML)
+ 	AgentLogFilePath = filepath.Join(AgentDir, "logs", AGENT_LOG_FILE)
+-	TranslatorBinaryPath = filepath.Join(AgentDir, "bin", TranslatorBinaryName)
+-	AgentBinaryPath = filepath.Join(AgentDir, "bin", AgentBinaryName)
++	TranslatorBinaryPath = filepath.Join("/usr", "bin", TranslatorBinaryName)
++	AgentBinaryPath = filepath.Join("/usr", "bin", AgentBinaryName)
+ }
+-- 
+2.40.1
+

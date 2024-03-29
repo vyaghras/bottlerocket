@@ -7,6 +7,9 @@ build = "../build.rs"
 # Don't rebuild crate just because of changes to README.
 exclude = ["README.md"]
 
+[package.metadata.build-variant.image-layout]
+os-image-size-gib = 4
+
 [package.metadata.build-variant.image-features]
 grub-set-private-var = true
 unified-cgroup-hierarchy = true
@@ -37,6 +40,7 @@ included-packages = [
     "iputils",
     "strace",
     "chrony-tools",
+    "cloudwatch-agent",
 ]
 
 [lib]
@@ -55,3 +59,4 @@ login = { path = "../../packages/login" }
 iputils = { path = "../../packages/iputils" }
 strace = { path = "../../packages/strace" }
 chrony = { path = "../../packages/chrony" }
+cloudwatch-agent = { path = "../../packages/cloudwatch-agent"}
